@@ -461,6 +461,40 @@ docker images
 * You should **not** see the `nginx` image (unless you are using it for something else).
 
 ---
+## Step 7: Practice Exercise: Customise the Webpage with Student Name
+
+Modify the content and insert the student’s name.
+
+**Example:**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Webpage</title>
+</head>
+<body>
+    <h1>Hello from Docker!</h1>
+
+    <h2>Student Name: <span style="color: blue;">YOUR NAME HERE</span></h2>
+
+    <p>This webpage is customised as part of the Docker Practical Lab.</p>
+</body>
+</html>
+```
+
+You are required to **replace “YOUR NAME HERE” with their own name**.
+
+---
+
+# 📸 **Submission Requirement for Step 7**
+
+### **1. Zipped the nginx-html and submit**
+
+### **2. Screenshot of your customized webpage**
+
+Take a screenshot of your browser showing your name and student ID
+
 
 ## Quick Summary of What You Learned
 
