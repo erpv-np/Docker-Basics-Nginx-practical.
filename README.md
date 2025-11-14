@@ -5,363 +5,472 @@
 **Step-by-step student guide**
 
 ---
-
 ## Before You Start
 
-**You should already have:**
+1. **Make sure Docker is installed and running**
 
-* Docker Desktop / Docker Engine installed and running
-* Basic ability to type commands in **Terminal** (macOS/Linux) or **Command Prompt / PowerShell** (Windows)
+   * On **Windows / macOS**: Open **Docker Desktop** and ensure it says “Running”.
+   * On **Linux**: Ensure the Docker service is running (`sudo systemctl status docker` if you know how).
 
-**Key ideas you’ll meet:**
+2. **Open a terminal**
 
-* **Image** – a “blueprint” or template for a container
-* **Container** – a running instance created from an image
-* **Port mapping** – allowing your browser to talk to the app in the container
-* **Volume** – a folder on your computer “linked” into the container so data can persist
+   * **Windows**: PowerShell or Command Prompt
+   * **macOS**: Terminal
+   * **Linux**: Any terminal (GNOME Terminal, Konsole, etc.)
+
+3. **Check that Docker works:**
+
+   ```bash
+   docker --version
+   docker info
+   ```
+
+   * If you see version information and no big error messages, you’re ready.
 
 ---
 
-## Step 1 – Pull the Nginx Image
+## Step 1: Pulling an Nginx Image
 
-**Goal:** Download the official Nginx image from Docker Hub to your computer.
+### 1.1 Pull the official Nginx image
 
-1. Open your **terminal / command prompt**.
+In your terminal, type:
 
-2. Type this command:
+```bash
+docker pull nginx
+```
 
-   ```bash
-   docker pull nginx
-   ```
+**What this does:**
 
-   **What this does:**
+* `docker pull` tells Docker to **download an image** from Docker Hub (the public Docker image repository).
+* `nginx` is the name of the image (the official Nginx web server).
 
-   * `docker pull` tells Docker to download an image.
-   * `nginx` is the name of the image (an official web server image).
+**What you should see:**
 
-3. After it finishes, check that the image is stored locally:
+* Several lines showing “Downloading”, “Pull complete”, and finally something like:
 
-   ```bash
-   docker images
-   ```
+  ```text
+  Status: Downloaded newer image for nginx:latest
+  ```
 
-   **You should see:**
-   A table with a row where **REPOSITORY** is `nginx`.
-   That means the image is now available for you to use.
+### 1.2 Verify that the image is downloaded
 
----
+Run:
 
-## Step 2 – Run Nginx as a Container
+```bash
+docker images
+```
 
-**Goal:** Start a container (a running instance) from the Nginx image.
+**What this does:**
 
-1. Run this command:
+* Lists all Docker images stored on your machine.
 
-   ```bash
-   docker run -d --name my-nginx-container nginx
-   ```
+**What to look for:**
 
-   **Explanation of options:**
+* A row where `REPOSITORY` is `nginx`, `TAG` is usually `latest`.
+* Example:
 
-   * `docker run` – create and start a new container.
-   * `-d` – run in **detached mode** (in the background, so your terminal is free).
-   * `--name my-nginx-container` – give the container a friendly name.
-   * `nginx` – use the `nginx` image you pulled earlier.
+  ```text
+  REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+  nginx        latest    a23c15a5b5d0   2 weeks ago    188MB
+  ```
 
-2. Check that it’s running:
-
-   ```bash
-   docker ps
-   ```
-
-   **You should see:**
-   A table showing a container with **NAMES** column `my-nginx-container` and **STATUS** like `Up ...`.
-
-**Concept check:**
-
-* Image = template.
-* Container = running process created from the template.
+If you see `nginx` there, Step 1 is successful.
 
 ---
 
-## Step 3 – Manage the Container Lifecycle
+## Step 2: Running Nginx as a Container
 
-**Goal:** Learn how to **stop**, **start**, and **restart** a container.
+### 2.1 Start a container from the Nginx image
+
+Run:
+
+```bash
+docker run -d --name my-nginx-container nginx
+```
+
+**Explanation of the command:**
+
+* `docker run` – create and start a container from an image.
+* `-d` – detached mode (container runs in the background, terminal is free for other commands).
+* `--name my-nginx-container` – gives the container a friendly name instead of a random one.
+* `nginx` – the image to use.
+
+If successful, Docker will output a **long string** (the container ID).
+
+### 2.2 Check that the container is running
+
+Run:
+
+```bash
+docker ps
+```
+
+**What this does:**
+
+* Shows all **running** containers.
+
+**What to look for:**
+
+* A row where `NAMES` is `my-nginx-container`.
+* `STATUS` should be something like `Up 5 seconds`.
+
+If you see `my-nginx-container` with `Up ...`, your container is running correctly.
+
+---
+
+## Step 3: Managing the Container Lifecycle
+
+This step teaches you how to **stop**, **start**, and **restart** a container.
 
 ### 3.1 Stop the container
 
-1. Run:
+Run:
 
-   ```bash
-   docker stop my-nginx-container
-   ```
+```bash
+docker stop my-nginx-container
+```
 
-   **What this does:**
+**What this does:**
 
-   * Sends a stop signal to gracefully shut down the container.
+* Politely asks the container to stop running.
 
-2. Check active containers:
+You should see the container name printed back:
 
-   ```bash
-   docker ps
-   ```
+```text
+my-nginx-container
+```
 
-   You **should NOT** see `my-nginx-container` here (because it’s stopped).
+### 3.2 Check that it has stopped
 
-3. List **all** containers (including stopped):
+Run:
 
-   ```bash
-   docker ps -a
-   ```
+```bash
+docker ps
+```
 
-   You **should** see `my-nginx-container` with STATUS like `Exited`.
+* You should **not** see `my-nginx-container` now (because it’s stopped).
 
----
+Then run:
 
-### 3.2 Start the container again
+```bash
+docker ps -a
+```
 
-1. Run:
+* `-a` shows **all containers**, including stopped ones.
+* Now you should see `my-nginx-container` with a `STATUS` like `Exited (0) ...`.
 
-   ```bash
-   docker start my-nginx-container
-   ```
+### 3.3 Start the container again
 
-2. Verify it’s running:
+Run:
 
-   ```bash
-   docker ps
-   ```
+```bash
+docker start my-nginx-container
+```
 
-   Now you should see it again with STATUS `Up ...`.
+Then verify:
 
----
+```bash
+docker ps
+```
 
-### 3.3 Restart the container
+* You should see `my-nginx-container` with `STATUS` starting with `Up`.
 
-1. Run:
+### 3.4 Restart the container
 
-   ```bash
-   docker restart my-nginx-container
-   ```
+Restart = stop + start in one command.
 
-   This is equivalent to stop + start in one command.
+Run:
 
-2. Check:
+```bash
+docker restart my-nginx-container
+```
 
-   ```bash
-   docker ps
-   ```
+Then check again:
 
-   It should still be **Up**, maybe with a new uptime.
+```bash
+docker ps
+```
 
-**Concept check:**
+* You should still see it running (status resets to `Up a few seconds`).
 
-* `stop` – pause / shut down the container process.
-* `start` – bring a stopped container back.
-* `restart` – stop then start in one go.
-
----
-
-## Step 4 – Expose Nginx as a Web App (Port Mapping)
-
-Right now your container is running, but we’re not controlling which **host port** it uses. We’ll start fresh and map ports properly.
-
-**Goal:** Make Nginx accessible from your browser at `http://localhost:8080`.
-
-### 4.1 Remove the old container
-
-1. Stop and remove the original container to avoid conflicts:
-
-   ```bash
-   docker stop my-nginx-container
-   docker rm my-nginx-container
-   ```
-
-   **Note:** `rm` deletes the container, but **not** the image.
+At this point, you know how to control the **lifecycle** of a container.
 
 ---
 
-### 4.2 Run Nginx with port mapping
+## Step 4: Exposing Nginx as a Web App
 
-1. Start a new container with port mapping:
+Now you will run Nginx so that it serves a web page that you can access from your browser.
 
-   ```bash
-   docker run -d --name my-web-nginx -p 8080:80 nginx
-   ```
+### 4.1 Remove the previous container (to avoid port conflicts)
 
-   **Explanation of `-p 8080:80`:**
+First, stop it (if it’s still running):
 
-   * `80` is the port **inside** the container (Nginx’s default HTTP port).
-   * `8080` is the port on **your computer (host)**.
-   * So when your browser goes to `localhost:8080`, Docker forwards traffic to port `80` inside the container.
+```bash
+docker stop my-nginx-container
+```
 
-2. Verify:
+Then remove it:
 
-   ```bash
-   docker ps
-   ```
+```bash
+docker rm my-nginx-container
+```
 
-   Check:
+* `docker rm` deletes the container (but not the image).
 
-   * The container name: `my-web-nginx`
-   * The **PORTS** column should show something like `0.0.0.0:8080->80/tcp`.
+### 4.2 Run a new container with port mapping
 
-3. Open your browser and go to:
+Run:
 
-   ```text
-   http://localhost:8080
-   ```
+```bash
+docker run -d --name my-web-nginx -p 8080:80 nginx
+```
 
-   You should see the default **Nginx welcome page**.
+**Explanation:**
 
-**Concept check:**
+* `-p 8080:80` means:
 
-* Port mapping makes a service inside the container available outside via a host port.
+  * Map **host port 8080** → **container port 80**.
+  * Port 80 is the default HTTP port inside the Nginx container.
+  * You will access it on your machine at `http://localhost:8080`.
+
+### 4.3 Check that it’s running and mapped correctly
+
+Run:
+
+```bash
+docker ps
+```
+
+Look at the `PORTS` column. You should see something like:
+
+```text
+0.0.0.0:8080->80/tcp
+```
+
+This confirms that port 8080 on your computer maps to port 80 in the container.
+
+### 4.4 Test in your browser
+
+Open your browser and go to:
+
+```text
+http://localhost:8080
+```
+
+You should see the **default Nginx welcome page** (usually a white page with “Welcome to nginx!”).
+
+If you don’t see it:
+
+* Check that the container is running (`docker ps`).
+* Make sure nothing else is using port 8080.
+* Try a different browser or incognito mode.
 
 ---
 
-## Step 5 – Mount a Volume for Persistent Custom Content
+## Step 5: Mounting a Volume for Persistence
 
-**Goal:** Serve your **own HTML page** from Nginx, stored in a folder on your computer (so you can edit it without rebuilding the container).
+In this step, you will:
+
+1. Create your **own HTML page** on your computer.
+2. Mount that folder into the Nginx container so Nginx serves *your* page instead of the default one.
 
 ### 5.1 Stop and remove the current web container
 
-1. Run:
+Run:
 
-   ```bash
-   docker stop my-web-nginx
-   docker rm my-web-nginx
+```bash
+docker stop my-web-nginx
+docker rm my-web-nginx
+```
+
+### 5.2 Create a folder for your custom HTML
+
+In your **current working directory**, create a folder:
+
+```bash
+mkdir nginx-html
+```
+
+Now you have a folder called `nginx-html` where you will store web files.
+
+> You can check with:
+>
+> ```bash
+> ls
+> ```
+>
+> or on Windows:
+>
+> ```bash
+> dir
+> ```
+
+### 5.3 Create `index.html` with custom content
+
+You have two options:
+
+#### Option A: Use the provided one-line command
+
+**Windows (Command Prompt):**
+
+```bat
+echo ^<!DOCTYPE html^>^<html^>^<head^>^<title^>My Custom Nginx Page^</title^>^</head^>^<body^>^<h1^>Hello from Docker!^</h1^>^<p^>This is my custom Nginx content.^</p^>^</body^>^</html^> > nginx-html\index.html
+```
+
+**macOS / Linux (Bash):**
+
+```bash
+echo '<!DOCTYPE html><html><head><title>My Custom Nginx Page</title></head><body><h1>Hello from Docker!</h1><p>This is my custom Nginx content.</p></body></html>' > nginx-html/index.html
+```
+
+#### Option B: Create the file using a text editor (recommended for beginners)
+
+1. Open a text editor:
+
+   * Windows: Notepad / VS Code
+   * macOS: TextEdit / VS Code
+   * Linux: gedit / VS Code / nano
+
+2. Paste this HTML:
+
+   ```html
+   <!DOCTYPE html>
+   <html>
+   <head>
+       <title>My Custom Nginx Page</title>
+   </head>
+   <body>
+       <h1>Hello from Docker!</h1>
+       <p>This is my custom Nginx content.</p>
+   </body>
+   </html>
    ```
 
----
+3. Save it as **`index.html`** **inside the `nginx-html` folder** you just created.
 
-### 5.2 Create a folder and custom `index.html`
+### 5.4 Find the absolute path to `nginx-html`
 
-1. In your current working directory, create a folder:
+You will need the **full path** to the folder for the `-v` option.
 
-   ```bash
-   mkdir nginx-html
-   ```
-
-2. Inside that folder, create `index.html` with your own content.
-
-* **Windows (Command Prompt):**
-
-  ```cmd
-  echo ^<!DOCTYPE html^>^<html^>^<head^>^<title^>My Custom Nginx Page^</title^>^</head^>^<body^>^<h1^>Hello from Docker!^</h1^>^<p^>This is my custom Nginx content.^</p^>^</body^>^</html^> > nginx-html\index.html
-  ```
-
-* **macOS / Linux (Bash/Zsh):**
+* **macOS / Linux**:
 
   ```bash
-  echo '<!DOCTYPE html><html><head><title>My Custom Nginx Page</title></head><body><h1>Hello from Docker!</h1><p>This is my custom Nginx content.</p></body></html>' > nginx-html/index.html
+  pwd
   ```
 
-**Concept:**
-This file is on your **host machine**, not inside Docker yet.
+  If it shows `/Users/yourname/projects`, then your folder path is:
+
+  ```text
+  /Users/yourname/projects/nginx-html
+  ```
+
+* **Windows (PowerShell)**:
+
+  ```powershell
+  (Get-Location).Path
+  ```
+
+  If it shows `C:\Users\YourUser\Desktop`, your folder path is:
+
+  ```text
+  C:\Users\YourUser\Desktop\nginx-html
+  ```
+
+### 5.5 Run Nginx with a mounted volume
+
+Use the **absolute path** in this command.
+
+#### Windows example:
+
+```bash
+docker run -d --name my-persistent-nginx -p 8080:80 -v C:\Users\YourUser\Desktop\nginx-html:/usr/share/nginx/html nginx
+```
+
+#### macOS / Linux example:
+
+```bash
+docker run -d --name my-persistent-nginx -p 8080:80 -v /Users/yourname/projects/nginx-html:/usr/share/nginx/html nginx
+```
+
+**Explanation:**
+
+* `-v host_path:container_path`
+
+  * `host_path` is your folder on your machine.
+  * `container_path` is where Nginx looks for web files (`/usr/share/nginx/html`).
+* This means Nginx will now serve **your `index.html`** instead of its own default page.
+
+### 5.6 Test in the browser
+
+Again, go to:
+
+```text
+http://localhost:8080
+```
+
+You should now see your **custom page**:
+
+* Title: “My Custom Nginx Page”
+* Heading: “Hello from Docker!”
+* Custom paragraph text.
+
+If you edit the `index.html` file on your machine and refresh the page in your browser, you should see the changes **immediately**. That’s the benefit of using a volume.
 
 ---
 
-### 5.3 Run Nginx with a volume mount
+## Step 6: Cleaning Up
 
-Now we tell Docker: “use my local `nginx-html` folder as Nginx’s web root”.
+After finishing the lab, you can clean up your containers and images to free disk space.
 
-1. First, find the **absolute path** to your `nginx-html` directory, e.g.:
+### 6.1 Stop the container
 
-* Windows example: `C:\Users\<YourUser>\Desktop\nginx-html`
-* macOS/Linux example: `/Users/<YourUser>/nginx-html`
+```bash
+docker stop my-persistent-nginx
+```
 
-2. Run the container with a volume:
+### 6.2 Remove the container
 
-   ```bash
-   docker run -d --name my-persistent-nginx -p 8080:80 -v <PATH_TO_YOUR_NGINX_HTML_DIRECTORY>:/usr/share/nginx/html nginx
-   ```
+```bash
+docker rm my-persistent-nginx
+```
 
-   Replace `<PATH_TO_YOUR_NGINX_HTML_DIRECTORY>` with your actual path, e.g.:
+### 6.3 Remove the Nginx image
 
-   * **Windows:**
+```bash
+docker rmi nginx
+```
 
-     ```bash
-     docker run -d --name my-persistent-nginx -p 8080:80 -v C:\Users\<YourUser>\Desktop\nginx-html:/usr/share/nginx/html nginx
-     ```
+> If Docker says the image is still in use, it means some container using `nginx` is still present. Make sure all `nginx` containers are stopped and removed.
 
-   * **macOS/Linux:**
+### 6.4 Verify everything is cleaned up
 
-     ```bash
-     docker run -d --name my-persistent-nginx -p /Users/<YourUser>/nginx-html:/usr/share/nginx/html nginx
-     ```
+Check containers:
 
-   **Explanation of `-v host_path:container_path`:**
+```bash
+docker ps -a
+```
 
-   * `host_path` – folder on your computer.
-   * `container_path` – folder inside the container.
-   * Here, `/usr/share/nginx/html` is Nginx’s default web content folder.
+* You should **not** see `my-persistent-nginx` or any other lab container.
 
-3. Check that it’s running:
+Check images:
 
-   ```bash
-   docker ps
-   ```
+```bash
+docker images
+```
 
-4. In your browser, go to:
-
-   ```text
-   http://localhost:8080
-   ```
-
-   You should now see your **custom HTML page** (“Hello from Docker!”), not the default Nginx page.
-
-**Concept check:**
-
-* A **volume mount** links a host folder into the container.
-* Changes you make to files in `nginx-html` will immediately affect what Nginx serves (persistent and easy to edit).
+* You should **not** see the `nginx` image (unless you are using it for something else).
 
 ---
 
-## Step 6 – Clean Up
+## Quick Summary of What You Learned
 
-**Goal:** Remove everything created in this lab so your system is clean.
+By completing this lab, you have:
 
-1. Stop the running container:
+* Pulled an image from Docker Hub (`docker pull nginx`).
+* Created and managed containers (`docker run`, `stop`, `start`, `restart`, `rm`).
+* Exposed a containerized web server to your host (`-p 8080:80` and `http://localhost:8080`).
+* Mounted a host directory into a container as a volume (`-v host_path:/usr/share/nginx/html`).
+* Cleaned up containers and images (`docker rm`, `docker rmi`).
 
-   ```bash
-   docker stop my-persistent-nginx
-   ```
-
-2. Remove the container:
-
-   ```bash
-   docker rm my-persistent-nginx
-   ```
-
-3. Remove the Nginx image:
-
-   ```bash
-   docker rmi nginx
-   ```
-
-4. Check that no containers or images from this lab remain:
-
-   ```bash
-   docker ps -a
-   docker images
-   ```
-
-   * `docker ps -a` should not list `my-persistent-nginx` or the earlier containers.
-   * `docker images` should not list `nginx` (unless you have other tags).
-
----
-
-## Quick Recap for Students
-
-By the end of this lab, you have learned how to:
-
-1. **Pull** an image from Docker Hub (`docker pull`).
-2. **Run** a container and see it in `docker ps`.
-3. **Stop**, **start**, and **restart** containers (lifecycle management).
-4. Use **port mapping** (`-p 8080:80`) to access a web server in the container.
-5. Use **volumes** (`-v host:container`) to serve your own HTML content from Nginx.
-6. **Clean up** containers and images when you are done (`docker stop`, `docker rm`, `docker rmi`).
-
-If you’d like, I can next turn this into a **GitHub-style README** or a **student lab sheet** with checkboxes and spaces for screenshots.
+You can now reuse these patterns for other images and web apps, not just Nginx.
 
